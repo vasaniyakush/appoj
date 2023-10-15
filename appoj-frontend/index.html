@@ -196,7 +196,7 @@
 
     <script>
       const timelimit = 2;
-      var IP = "192.168.0.40";
+      var IP = "127.0.0.1";
       document.onkeydown = (e) => {
         // console.log(e);  
         if ((e.key == "F12")) {
@@ -457,7 +457,7 @@
         };
 
         fetch(
-          "http://192.168.0.40:2358/submissions/?base64_encoded=false&wait=false",
+          `http://${IP}:2358/submissions/?base64_encoded=false&wait=false`,
           requestOptions
         )
           .then((response) => response.json())
@@ -488,7 +488,7 @@
               };
 
                 fetch(
-                `http://192.168.0.40:2358/submissions/${token}?base64_encoded=false&fields=stdout,stderr,status_id,language_id`,
+                `http://${IP}:2358/submissions/${token}?base64_encoded=false&fields=stdout,stderr,status_id,language_id`,
                 requestOptions
               )
                 .then((response) => response.json())

@@ -1,9 +1,17 @@
+'use client'
 import Image from "next/image";
 import styles from "./page.module.css";
 import AdbIcon from "@mui/icons-material/Adb";
 import MenuIcon from "@mui/icons-material/Menu";
 import CodeIcon from '@mui/icons-material/Code';
 import LaptopChromebookIcon from '@mui/icons-material/LaptopChromebook';
+
+import CodeMirror from '@uiw/react-codemirror';
+// import '../node_modules/codemirror/';
+// import 'codemirror/theme/monokai.css';
+const code = 'print("hello world")';
+
+
 import {
   AppBar,
   Box,
@@ -18,7 +26,11 @@ import {
   Tooltip,
   Typography,
 } from "@mui/material";
+import { problem } from "@/components/problem";
+import { useState } from "react";
 export default function Home() {
+
+  const [lang,setLang] = useState("cpp");
   return (
     <>
       <AppBar  position="sticky"
@@ -64,11 +76,11 @@ export default function Home() {
         
       </AppBar>
       <Container  maxWidth="false" sx={{
-        mt:0,
+        mt:1,
         display:"flex",
         flexDirection:"row"
       }}>
-      <Box sx={{ bgcolor: '#cfe8fc', width:"50%", height: '100vh', border:"solid 0.5px black",mr:0 }} />
+      <Box sx={{ bgcolor: '#cfe8fc',  width:"50%", height: '100vh',mr:0 }} />
       <Container  maxWidth="false" sx={{
         m:0,
         display:"flex",
@@ -86,7 +98,16 @@ export default function Home() {
         <Button sx={{ml:"auto"}} variant="outlined">Run</Button>
         <Button sx={{ ml:1, alignSelf:"flex-end"}} variant="contained">Submit</Button>
       </Container>
-      <Box sx={{ bgcolor: '#cfe8fc', width:"100%", height: '100%', border:"solid 0.5px black",ml:1 }} />
+      <Box sx={{ bgcolor: '#cfe8fc',  width:"100%", height: '100%', ml:1 }} >
+      <CodeMirror
+          value={code}
+          options={{
+          theme: 'monokai',
+          keyMap: 'sublime',
+          mode: 'python',
+          }}
+          />
+      </Box>
       </Container>
       </Container>
     </>

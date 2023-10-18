@@ -173,7 +173,23 @@ export default function Home() {
             <Button sx={{ ml: "auto", height:"auto" }} variant="outlined">
               Run
             </Button>
-            <Button sx={{ ml: 1, alignSelf: "flex-end", height:"100%" }} variant="contained">
+            <Button sx={{ ml: 1, alignSelf: "flex-end", height:"100%" }} variant="contained"
+              onClick={async()=>{
+                try {
+                  const response = await fetch('http://localhost:3001/users/');
+                  if (response.ok) {
+                    const json = await response.text();
+                    console.log(json);
+                    // setData(json);
+                  } else {
+                    console.error('Failed to fetch data');
+                  }
+                } catch (error) {
+                  console.error('Error:', error);
+                }
+          
+              }}
+            >
               Submit
             </Button>
           </Container>

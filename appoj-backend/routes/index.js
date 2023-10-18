@@ -1,5 +1,6 @@
 var express = require('express');
 var router = express.Router();
+const fs = require('fs')
 const { fileUpload } = require('../middleware/multerConfig');
 const { password } = require('../constants');
 

@@ -1,5 +1,5 @@
 
-export function problem(props){
+export default function Problem(){
 return(<>
     <div id="problem-statement" class="_problemBody_15v7d_29 _dark_15v7d_229 print">
             <h2>Problem</h2>

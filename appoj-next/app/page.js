@@ -26,7 +26,7 @@ import {
 } from "@mui/material";
 
 import AceEditor from "react-ace";
-
+import axios from "axios";
 import "brace/mode/c_cpp";
 import "brace/mode/java";
 import "brace/mode/python";
@@ -117,7 +117,7 @@ export default function Home() {
         }}
       >
         <Box
-          sx={{  width: "50%", height: "100vh", mr: 0 }}
+          sx={{  width: "40%", height: "100vh", mr: 0 }}
         >
           <Problem />
           </Box>
@@ -126,7 +126,7 @@ export default function Home() {
           sx={{
             m: 0,
             display: "flex",
-            width: "50%",
+            width: "60%",
             flexDirection: "column",
           }}
         >
@@ -176,7 +176,8 @@ export default function Home() {
             <Button sx={{ ml: 1, alignSelf: "flex-end", height:"100%" }} variant="contained"
               onClick={async()=>{
                 try {
-                  const response = await fetch('http://localhost:3001/users/');
+                  
+                  const response = await fetch('http://localhost:3001/judge/');
                   if (response.ok) {
                     const json = await response.text();
                     console.log(json);

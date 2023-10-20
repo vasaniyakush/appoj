@@ -1,5 +1,5 @@
 // import './globals.css'
-// "use client"
+
 import '@fontsource/roboto/300.css';
 import '@fontsource/roboto/400.css';
 import '@fontsource/roboto/500.css';
@@ -24,8 +24,10 @@ export default function RootLayout({ children }) {
 <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="true" />
 <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@200;400&family=Tilt+Prism&family=Young+Serif&display=swap" rel="stylesheet"></link>
       </head>
-  
+    
+
       <body className={inter.className}>{children}</body>
+     
     </html>
   )
 }

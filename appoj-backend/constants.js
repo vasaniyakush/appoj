@@ -1,3 +1,3 @@
 const password = "THISPASS"
-
-module.exports = {password}
+const problemFolderConstant = "problem1"
+module.exports = {password, problemFolderConstant}

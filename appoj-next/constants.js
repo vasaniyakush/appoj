@@ -1,10 +1,19 @@
+export const IP = "192.168.0.57"
+
+
+
 export const langs = [
     "c_cpp",
     "c_cpp",
     "java",
     "python",
 ]
-
+export const langs_ids = [
+    49,
+    54,
+    62,
+    71,
+]
 
 export const statuses = [
     "In Queue",

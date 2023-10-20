@@ -1,7 +1,7 @@
 
 export default function Problem(){
 return(<>
-    <div id="problem-statement" class="_problemBody_15v7d_29 _dark_15v7d_229 print">
+    <div id="problem-statement" className="_problemBody_15v7d_29 _dark_15v7d_229 print">
             <h2>Problem</h2>
             <p>Tenzing received <strong>3n</strong> books from his fans. The books are arranged in <strong>3</strong> stacks with <strong>n</strong> books in each stack. Each book has a non-negative integer difficulty rating.</p>
 

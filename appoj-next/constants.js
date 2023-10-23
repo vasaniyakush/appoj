@@ -1,7 +1,7 @@
 export const IP = "192.168.0.57"
 
 
-
+//Please add respective items to add a new lang
 export const langs = [
     "c_cpp",
     "c_cpp",
@@ -14,6 +14,32 @@ export const langs_ids = [
     62,
     71,
 ]
+
+export const lang_extn = [
+    "c",
+    "cpp",
+    "java",
+    "py"
+]
+
+
+export const defaultCode ={
+    "C":`#include<stdio.h>
+    int main(){
+        printf("Hello World!!");
+    }`,
+    
+    "CPP":`#include<bits/stdc++.h>
+    using namepace std;
+int main(){
+    cout<<"Hello World!!";
+    return 0;
+}`,
+"JAVA":"",
+"PYTHON":`str = "Hello World!!!"
+print(str)`
+}
+
 
 export const statuses = [
     "In Queue",
@@ -31,20 +57,3 @@ export const statuses = [
     "Internal Error",
     "Exec Format Error",
   ];
-
-export const defaultCode ={
-    "C":`#include<stdio.h>
-int main(){
-    printf("Hello World!!");
-}`,
-
-    "CPP":`#include<bits/stdc++.h>
-using namepace std;
-int main(){
-    cout<<"Hello World!!";
-    return 0;
-}`,
-    "JAVA":"",
-    "PYTHON":`str = "Hello World!!!"
-print(str)`
-}

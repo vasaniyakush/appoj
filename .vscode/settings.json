@@ -1,3 +1,4 @@
 {
-    "cph.general.saveLocation": ""
+    "cph.general.saveLocation": "",
+    "C_Cpp.errorSquiggles": "enabled"
 }

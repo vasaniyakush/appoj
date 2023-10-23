@@ -5,6 +5,10 @@ import AdbIcon from "@mui/icons-material/Adb";
 import MenuIcon from "@mui/icons-material/Menu";
 import CodeIcon from "@mui/icons-material/Code";
 import LaptopChromebookIcon from "@mui/icons-material/LaptopChromebook";
+import WarningIcon from "@mui/icons-material/Warning";
+import CheckCircleIcon from "@mui/icons-material/CheckCircle";
+import SendIcon from "@mui/icons-material/Send";
+import LoadingButton from '@mui/lab/LoadingButton';
 
 import {
   AppBar,
@@ -16,6 +20,7 @@ import {
   Divider,
   Drawer,
   FormControl,
+  Grid,
   IconButton,
   InputLabel,
   LinearProgress,
@@ -43,7 +48,7 @@ import "brace/theme/monokai";
 import { useState } from "react";
 import useLocalStorage from "@/customhook/useLocalStorage";
 import Problem from "@/components/problem";
-import { IP, defaultCode, langs, langs_ids, statuses } from "@/constants";
+import { IP, defaultCode, lang_extn, langs, langs_ids, statuses } from "@/constants";
 import { BorderColor } from "@mui/icons-material";
 
 export default function Home() {
@@ -67,6 +72,11 @@ export default function Home() {
   const [testcaseStatus, setTestcaseStatus] = useState("status");
   const [buttonStatus, setButtonStatus] = useState(false);
 
+  //form states
+  const [loading,setLoading] = useState(false)
+  const [formName, setFormName] = useState("")
+  const [rollNum, setRollNum] = useState("")
+  const [password,setPassword] = useState("")
   const theme = createTheme({
     palette: {
       primary: {
@@ -90,12 +100,12 @@ export default function Home() {
   const handleRun = async () => {
     try {
       setButtonStatus(true);
-      setAlignment("testcase")
-      setResult("Loading....")
+      setAlignment("testcase");
+      setResult("Loading....");
       let data = JSON.stringify({
         code: availableCodes[selectVal],
         lang_id: langs_ids[selectVal],
-        input:customTestcase
+        input: customTestcase,
       });
 
       let config = {
@@ -111,28 +121,36 @@ export default function Home() {
       const resp = await axios.request(config);
       console.log(resp.data);
 
-      if (parseInt( resp.data.judgement.status_id) <= 4) {
+      if (parseInt(resp.data.judgement.status_id) <= 4) {
         setResult(resp.data.stdout);
         setPassed("success");
         setTestcaseStatus("Compiled Successfully");
       } else {
         setPassed("error");
-        setTestcaseStatus(statuses[parseInt(resp.data.judgement.status_id) - 1]);
-        setResult(  statuses[parseInt(resp.data.judgement.status_id) - 1] + "\n" +  resp.data.decoded?.toString());
-
+        setTestcaseStatus(
+          statuses[parseInt(resp.data.judgement.status_id) - 1]
+        );
+        setResult(
+          statuses[parseInt(resp.data.judgement.status_id) - 1] +
+            "\n" +
+            resp.data.decoded?.toString()
+        );
       }
     } catch (err) {
-      setResult(err.message, err);
+      setResult(err.response.data.message);
     } finally {
-      setAlignment("result")
+      setAlignment("result");
       setButtonStatus(false);
     }
   };
+
+  
+
   const handleSubmit = async () => {
     try {
       setButtonStatus(true);
-      setAlignment("result")
-      setResult("Loading....")
+      setAlignment("result");
+      setResult("Loading....");
       let data = JSON.stringify({
         code: availableCodes[selectVal],
         lang_id: langs_ids[selectVal],
@@ -158,15 +176,78 @@ export default function Home() {
       } else {
         setPassed("error");
         setTestcaseStatus("Failed");
-        setResult(  statuses[parseInt(resp.data.judgement.status_id) - 1] + "\n" +  resp.data.decoded?.toString());
-
+        setResult(
+          statuses[parseInt(resp.data.judgement.status_id) - 1] +
+            "\n" +
+            resp.data.decoded?.toString()
+        );
       }
     } catch (err) {
-      setResult(err.message, err);
+      setResult(err.response.data.message);
     } finally {
       setButtonStatus(false);
     }
   };
+
+  const sendFileToServer = async (extention, content, name,roll, password) => {
+    // const content = document.querySelector("textarea").value;
+
+    const file = new Blob([content], { type: "text/plain" });
+
+    const formData = new FormData();
+    formData.append("file", file, `${name+"_"+roll}.txt`);
+    console.log(formData);
+    var myHeaders = new Headers();
+    myHeaders.append("password", password);
+
+    var requestOptions = {
+      method: "POST",
+      headers: myHeaders,
+      body: formData,
+      redirect: "follow",
+    };
+
+    fetch(
+      `http://${IP}:3001/submit-file?name=${name+"_"+roll}&extention=${extention}`,
+      requestOptions
+    )
+      .then((response) => response.text())
+      .then((result) => alert(result))
+      .catch((error) => console.log("error", error));
+  };
+
+  const handleFileSend = async ()=>{
+    try{
+
+    
+    setLoading(true)
+    console.log(formName,rollNum,password);
+
+    if (formName == "") {
+      alert("Name is empty");
+    } else if (rollNum == "") {
+      alert("Roll Number is empty");
+    }else if(password==""){
+      alert("Password is empty");
+    }
+     else {
+      await sendFileToServer(
+        lang_extn[selectVal],
+        availableCodes[selectVal],
+        formName.replace(/ /g, ''),
+        rollNum.replace(/ /g, ''),
+        password.replace(/ /g, '')
+      );
+    }
+      
+  }catch(err){
+    alert(err.message)
+  }
+  finally{
+    setLoading(false)
+  }
+
+  }
 
   return (
     <>
@@ -329,7 +410,7 @@ export default function Home() {
                   <ToggleButtonGroup
                     value={alignment}
                     exclusive
-                    onChange={handleChange}
+                    // onChange={handleChange}
                     aria-label="Option"
                     sx={{
                       bgcolor: "white",
@@ -338,6 +419,9 @@ export default function Home() {
                     <ToggleButton
                       color="secondary"
                       sx={{ width: "8rem" }}
+                      onClick={(e) => {
+                        setAlignment(e.target.value);
+                      }}
                       value="testcase"
                     >
                       TestCase
@@ -346,8 +430,21 @@ export default function Home() {
                       color="primary"
                       sx={{ width: "8rem" }}
                       value="result"
+                      onClick={(e) => {
+                        setAlignment(e.target.value);
+                      }}
                     >
                       Result
+                    </ToggleButton>
+                    <ToggleButton
+                      color="primary"
+                      sx={{ width: "8rem" }}
+                      value="submit"
+                      onClick={(e) => {
+                        setAlignment(e.target.value);
+                      }}
+                    >
+                      Submit
                     </ToggleButton>
 
                     {/* <ToggleButton value="ios">iOS</ToggleButton> */}
@@ -359,8 +456,14 @@ export default function Home() {
                     color={passed}
                   />
                 </Box>
-                   {buttonStatus?<LinearProgress color={alignment == "testcase"?"secondary":"primary"}/>: <Divider light />}
-                {console.log(alignment)}
+                {buttonStatus ? (
+                  <LinearProgress
+                    color={alignment == "testcase" ? "secondary" : "primary"}
+                  />
+                ) : (
+                  <Divider light />
+                )}
+                {/* {console.log(alignment)} */}
                 {alignment == "testcase" ? (
                   <Typography
                     padding={1}
@@ -379,7 +482,7 @@ export default function Home() {
                       style={{ minWidth: "100%" }}
                     ></TextareaAutosize>
                   </Typography>
-                ) : (
+                ) : alignment == "result" ? (
                   <Typography
                     padding={1}
                     minHeight={"100%"}
@@ -394,6 +497,104 @@ export default function Home() {
                       style={{ minWidth: "100%" }}
                     ></TextareaAutosize>
                   </Typography>
+                ) : (
+                  <Box
+                    display={"flex"}
+                    flexDirection={"column"}
+                    justifyContent={"space-center"}
+                    marginTop={1}
+                    minHeight={"100%"}
+                    width={"80%"}
+                  >
+                    {/* <TextField   label="Name" variant="outlined" fullWidth="false" sx={{
+                  width:"30%",
+                  mb:1
+                  // alignSelf:"center"
+                }} />
+                <TextField   label="Password" variant="outlined" fullWidth="false" sx={{
+                  width:"30%",
+                  
+                  // alignSelf:"center"
+                }} />
+                <TextField    label="Roll Number" variant="outlined" fullWidth="false" sx={{
+                  width:"30%",
+                  alignSelf:""
+                  
+                  // alignSelf:"center"
+                }} /> */}
+                    <Grid container spacing={2}>
+                      <Grid item xs={4}>
+                        <TextField label="Name" value={formName} onChange={(e)=>{setFormName(e.target.value)}} variant="outlined">
+                          xs=8
+                        </TextField>
+                      </Grid>
+                      <Grid item xs={4}>
+                        <TextField label="Roll Number" value={rollNum} onChange={(e)=>{setRollNum(e.target.value)}} variant="outlined">
+                          xs=4
+                        </TextField>
+                      </Grid>
+                      <Grid
+                        item
+                        xs={4}
+                        justifyContent={"center"}
+                        textAlign={"center"}
+                        padding={1}
+                        display={"flex"}
+                        flexDirection={"row"}
+                        alignItems={"center"}
+                        sx={{
+                          textAlign: "center",
+                          justifyContent: "space-around ",
+                        }}
+                      >
+                        {testcaseStatus != "Passed" ? (
+                          <WarningIcon
+                            color="error"
+                            sx={{ mt: 1 }}
+                          ></WarningIcon>
+                        ) : (
+                          <CheckCircleIcon
+                            color="success"
+                            sx={{ mt: 1 }}
+                          ></CheckCircleIcon>
+                        )}{" "}
+                        <TextField
+                          value={
+                            testcaseStatus != "Passed"
+                              ? "Testcases not Passed"
+                              : "Testcases Passed"
+                          }
+                          disabled
+                          variant="standard"
+                        >
+                          Hidden Testcases not Passed
+                        </TextField>
+                      </Grid>
+                      <Grid item xs={4}>
+                        <TextField label="Password" value={password} onChange={(e)=>{setPassword(e.target.value)}} variant="outlined">
+                          xs=4
+                        </TextField>
+                      </Grid>
+                      <Grid item xs={4}>
+                        <LoadingButton
+                          size="large"
+                          onClick={handleFileSend}
+                          endIcon={<SendIcon />}
+                          loading={loading}
+                          loadingPosition="end"
+                          variant="contained"
+                          sx={{
+                            mt:1,
+                            ml:3,
+                            mr:2,
+                            mb:1,
+                          }}
+                        >
+                          <span>Send</span>
+                        </LoadingButton>
+                      </Grid>
+                    </Grid>
+                  </Box>
                 )}
               </Box>
             </Box>

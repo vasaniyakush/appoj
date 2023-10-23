@@ -6,15 +6,15 @@ const axios = require("axios");
 const { problemFolderConstant } = require("../constants");
 
 
-judgeRouter.post("/custom", async (req, res) => {
+judgeRouter.post("/custom", async (req, res,next) => {
     try {
       if (!req.body.code || req.body.code == "") {
         res.status(400).json({ message: "No Code Found" });
       }
-      if (!req.body.lang_id || req.body.lang_id == "") {
+      else if (!req.body.lang_id || req.body.lang_id == "") {
         res.status(400).json({ message: "Please send a language id" });
       }
-      if (!req.body.input ) {
+      else if (!req.body.input ) {
         res.status(400).json({ message: "Please send custom testcases" });
       }
       else{
@@ -82,6 +82,7 @@ judgeRouter.post("/custom", async (req, res) => {
       }
       //   console.log("judgement",response.data);
       console.log(repj);
+    
       // let str2 = repj.compile_output                                                                                                                                                                                                                               OyBpbnQgbWFpbigpeyBjcmV0dXJuIDA7fQogICAgICB8ICAgICAgICAgICAg
       const errM = repj.compile_output
         ? repj.compile_output
@@ -89,29 +90,31 @@ judgeRouter.post("/custom", async (req, res) => {
         ? repj.stderr
         : null;
       var buffer = errM ? Buffer.from(errM, "base64") : null;
-
+      let decoded =  errM ? buffer.toString() : "None"
+      let stdout =  repj.stdout
+      ? Buffer.from(repj.stdout, "base64")?.toString()
+      : "None"
       res.status(200).json({
         token: response.data,
         judgement: repj,
-        decoded: errM ? buffer.toString() : "None",
-        stdout: repj.stdout
-          ? Buffer.from(repj.stdout, "base64")?.toString()
-          : "None",
+        decoded,
+        stdout,
       });
     }
     } catch (err) {
-      console.log(err);
-      res.status(400).json({ message: err });
+      next(err)
+      // console.log(err);
+      // res.status(400).json({ message: err });
     }
   });
 
 
-  judgeRouter.post("/", async (req, res) => {
+  judgeRouter.post("/", async (req, res, next) => {
     try {
       if (!req.body.code || req.body.code == "") {
         res.status(400).json({ message: "No Code Found" });
       }
-      if (!req.body.lang_id || req.body.lang_id == "") {
+      else if (!req.body.lang_id || req.body.lang_id == "") {
         res.status(400).json({ message: "Please send a language id" });
       }
       else{
@@ -199,18 +202,22 @@ judgeRouter.post("/custom", async (req, res) => {
       //         console.log(buffer.toString());
       //   })
       // res.send(buffer.toString())
+
+      let decoded = errM ? buffer.toString() : "None"
+      let stdout = repj.stdout
+      ? Buffer.from(repj.stdout, "base64")?.toString()
+      : "None"
       res.status(200).json({
         token: response.data,
         judgement: repj,
-        decoded: errM ? buffer.toString() : "None",
-        stdout: repj.stdout
-          ? Buffer.from(repj.stdout, "base64")?.toString()
-          : "None",
+        decoded,
+        stdout,
       });
   }
     } catch (err) {
-      console.log(err);
-      res.status(400).json({ message: err });
+      next(err)
+      // console.log(err);
+      // res.status(400).json({ message: err });
     }
   });
 module.exports = judgeRouter;

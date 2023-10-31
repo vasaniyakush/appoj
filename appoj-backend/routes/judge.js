@@ -38,7 +38,7 @@ judgeRouter.post("/custom", async (req, res,next) => {
       let config = {
         method: "post",
         maxBodyLength: Infinity,
-        url: "http://localhost:2358/submissions/?base64_encoded=false&wait=false&cpu_time_limit=5",
+        url: "http://localhost:2358/submissions/?base64_encoded=false&wait=false&cpu_time_limit=10",
         headers: {
           "Content-Type": "application/json",
         },
@@ -49,7 +49,7 @@ judgeRouter.post("/custom", async (req, res,next) => {
       let judgement = await new Promise(function (resolve, reject) {
         setTimeout(async function () {
           const judgement = await axios.get(
-            `http://localhost:2358/submissions/${response.data.token}?base64_encoded=true&fields=stdout,stderr,status_id,language_id,compile_output`,
+            `http://localhost:2358/submissions/${response.data.token}?base64_encoded=true&fields=stdout,stderr,status_id,language_id,compile_output,status,time,stdin`,
             {
               responseType: "arraybuffer",
             }
@@ -66,7 +66,7 @@ judgeRouter.post("/custom", async (req, res,next) => {
           judgement = await new Promise(function (resolve, reject) {
               setTimeout(async function () {
                 const judgement = await axios.get(
-                  `http://localhost:2358/submissions/${response.data.token}?base64_encoded=true&fields=stdout,stderr,status_id,language_id,compile_output`,
+                  `http://localhost:2358/submissions/${response.data.token}?base64_encoded=true&fields=stdout,stderr,status_id,language_id,compile_output,status,time,stdin`,
                   {
                     responseType: "arraybuffer",
                   }
@@ -90,10 +90,10 @@ judgeRouter.post("/custom", async (req, res,next) => {
         ? repj.stderr
         : null;
       var buffer = errM ? Buffer.from(errM, "base64") : null;
-      let decoded =  errM ? buffer.toString() : "None"
+      let decoded =  errM ? buffer.toString() : null
       let stdout =  repj.stdout
       ? Buffer.from(repj.stdout, "base64")?.toString()
-      : "None"
+      : null
       res.status(200).json({
         token: response.data,
         judgement: repj,
@@ -138,12 +138,13 @@ judgeRouter.post("/custom", async (req, res,next) => {
         language_id: req.body.lang_id,
         stdin: Buffer.from(inputTestcases, "base64").toString(),
         expected_output: Buffer.from(expectedOutput, "base64").toString(),
+    
       });
   
       let config = {
         method: "post",
         maxBodyLength: Infinity,
-        url: "http://localhost:2358/submissions/?base64_encoded=false&wait=false&cpu_time_limit=5",
+        url: "http://localhost:2358/submissions/?base64_encoded=false&wait=false&cpu_time_limit=10",
         headers: {
           "Content-Type": "application/json",
         },
@@ -154,7 +155,7 @@ judgeRouter.post("/custom", async (req, res,next) => {
       let judgement = await new Promise(function (resolve, reject) {
         setTimeout(async function () {
           const judgement = await axios.get(
-            `http://localhost:2358/submissions/${response.data.token}?base64_encoded=true&fields=stdout,stderr,status_id,language_id,compile_output`,
+            `http://localhost:2358/submissions/${response.data.token}?base64_encoded=true&fields=stdout,stderr,status_id,language_id,compile_output,status,time`,
             {
               responseType: "arraybuffer",
             }
@@ -171,7 +172,7 @@ judgeRouter.post("/custom", async (req, res,next) => {
           judgement = await new Promise(function (resolve, reject) {
               setTimeout(async function () {
                 const judgement = await axios.get(
-                  `http://localhost:2358/submissions/${response.data.token}?base64_encoded=true&fields=stdout,stderr,status_id,language_id,compile_output`,
+                  `http://localhost:2358/submissions/${response.data.token}?base64_encoded=true&fields=stdout,stderr,status_id,language_id,compile_output,status,time`,
                   {
                     responseType: "arraybuffer",
                   }
@@ -203,10 +204,10 @@ judgeRouter.post("/custom", async (req, res,next) => {
       //   })
       // res.send(buffer.toString())
 
-      let decoded = errM ? buffer.toString() : "None"
+      let decoded = errM ? buffer.toString() : null
       let stdout = repj.stdout
       ? Buffer.from(repj.stdout, "base64")?.toString()
-      : "None"
+      : null
       res.status(200).json({
         token: response.data,
         judgement: repj,

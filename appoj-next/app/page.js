@@ -44,6 +44,7 @@ import "brace/mode/c_cpp";
 import "brace/mode/java";
 import "brace/mode/python";
 import "brace/theme/monokai";
+import "brace/theme/chrome"
 
 import { useState } from "react";
 import useLocalStorage from "@/customhook/useLocalStorage";
@@ -63,7 +64,7 @@ export default function Home() {
   const availableSetCodes = [setCCode, setCPPCode, setJavaCode, setPyCode];
   const [fontSize, setFontSize] = useLocalStorage("fontsize", 20);
   const [alignment, setAlignment] = useState("testcase");
-  const [customTestcase, setCustomTestcase] = useLocalStorage("testcase", "");
+  const [customTestcase, setCustomTestcase] = useLocalStorage("testcase", "1\n0");
   const [result, setResult] = useLocalStorage(
     "result",
     "Run or Submit to see output"
@@ -281,34 +282,7 @@ export default function Home() {
             }}
           ></Box>
 
-          {/* <CodeIcon
-          fontSize="large"
-          sx={{
-            alignSelf: "center",
-            ml: "auto",
-            mr: 1,
-          }}
-        />
-
-        <Typography
           
-          variant="h4"
-          sx={{
-            alignSelf: "center",
-
-            mr: 1,
-            fontFamily: "Young Serif",
-          }}
-        >
-          Online Judge
-        </Typography>
-        <CodeIcon
-          fontSize="large"
-          sx={{
-            alignSelf: "center",
-            mr: 1,
-          }}
-        /> */}
         </AppBar>
         <Container
           maxWidth="false"
@@ -349,6 +323,8 @@ export default function Home() {
               >
                 <InputLabel id="demo-simple-select-label">Language</InputLabel>
                 <Select
+                  
+                  size="small" 
                   defaultValue={1}
                   onChange={(e) => {
                     console.log(lang);
@@ -372,17 +348,19 @@ export default function Home() {
                 </Select>
               </FormControl>
               <Button
+                size="small"
                 disabled={buttonStatus}
-                sx={{ ml: "auto", height: "auto" }}
-                variant="outlined"
+                sx={{ ml: "auto", alignSelf: "flex-end"}}
+                variant="contained"
                 color="secondary"
                 onClick={handleRun}
               >
                 Run
               </Button>
               <Button
+              size="small"
                 disabled={buttonStatus}
-                sx={{ ml: 1, alignSelf: "flex-end", height: "100%" }}
+                sx={{ ml: 1, alignSelf: "flex-end"}}
                 variant="contained"
                 color="primary"
                 onClick={handleSubmit}
@@ -465,38 +443,29 @@ export default function Home() {
                 )}
                 {/* {console.log(alignment)} */}
                 {alignment == "testcase" ? (
-                  <Typography
-                    padding={1}
-                    minHeight={"100%"}
-                    // bgcolor={"black"}
-                    color={"white"}
-                    variant="body1"
-                    gutterBottom
-                  >
-                    <TextareaAutosize
+                  
+                    <AceEditor
                       value={customTestcase}
-                      onChange={(e) => {
-                        setCustomTestcase(e.target.value);
+                      onChange={(value) => {
+                        setCustomTestcase(value);
                       }}
-                      minRows="15"
+                      theme="chrome"
+                      height="100%"
+                      minHeight="10%"
                       style={{ minWidth: "100%" }}
-                    ></TextareaAutosize>
-                  </Typography>
+                    ></AceEditor>
+                 
                 ) : alignment == "result" ? (
-                  <Typography
-                    padding={1}
-                    minHeight={"100%"}
-                    // bgcolor={"black"}
-                    color={"white"}
-                    variant="body1"
-                    gutterBottom
-                  >
-                    <TextareaAutosize
+                 
+                    <AceEditor
                       value={result}
                       minRows="15"
+                      height="100%"
+                      readOnly={true}
+                      
                       style={{ minWidth: "100%" }}
-                    ></TextareaAutosize>
-                  </Typography>
+                    ></AceEditor>
+                  
                 ) : (
                   <Box
                     display={"flex"}

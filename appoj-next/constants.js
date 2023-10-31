@@ -1,4 +1,4 @@
-export const IP = "192.168.0.57"
+export const IP = "localhost"
 
 
 //Please add respective items to add a new lang
@@ -30,12 +30,16 @@ export const defaultCode ={
     }`,
     
     "CPP":`#include<bits/stdc++.h>
-    using namepace std;
+using namespace std;
 int main(){
     cout<<"Hello World!!";
     return 0;
 }`,
-"JAVA":"",
+"JAVA":`public class Main{
+    public static void main(String[] args){
+        System.out.println("Hello");
+    }
+}`,
 "PYTHON":`str = "Hello World!!!"
 print(str)`
 }

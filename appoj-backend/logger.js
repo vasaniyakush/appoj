@@ -42,10 +42,10 @@ class Logger {
       level: "debug",
     });
     this.logger = winston.createLogger({
-      level: process.env.NODE_ENV === "development" ? "trace" : "error",
+      level: process.env.NODE_ENV === "development" || true ? "trace" : "error",
       levels: customLevels.levels,
       transports: [
-        process.env.NODE_ENV === "development" ? transport : prodTransport,
+        process.env.NODE_ENV === "development" || true ? transport : prodTransport,
       ],
     });
     winston.addColors(customLevels.colors);

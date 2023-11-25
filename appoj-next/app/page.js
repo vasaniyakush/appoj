@@ -98,6 +98,56 @@ export default function Home() {
     setAlignment(newAlignment);
   };
 
+
+  const handleCheck = async() =>{
+    try {
+      setButtonStatus(true);
+      setAlignment("testcase");
+      setResult("Loading....");
+      let data = JSON.stringify({
+        code: availableCodes[selectVal],
+        lang_id: langs_ids[selectVal],
+        input: customTestcase,
+      });
+
+      let config = {
+        method: "post",
+        maxBodyLength: Infinity,
+        url: `/api/run`,
+        headers: {
+          "Content-Type": "application/json",
+        },
+        data: data,
+      };
+
+      const resp = await axios.request(config,{"message":"obj passed"});
+      console.log(resp);
+      console.log(resp.data);
+
+      if (parseInt(resp.data.judgement.status_id) <= 4) {
+        setResult(resp.data.stdout);
+        setPassed("success");
+        setTestcaseStatus("Compiled Successfully");
+      } else {
+        setPassed("error");
+        setTestcaseStatus(
+          statuses[parseInt(resp.data.judgement.status_id) - 1]
+        );
+        setResult(
+          statuses[parseInt(resp.data.judgement.status_id) - 1] +
+            "\n" +
+            resp.data.decoded?.toString()
+        );
+      }
+    } catch (err) {
+      console.log(err);
+      setResult(err.response.data.message);
+    } finally {
+      setAlignment("result");
+      setButtonStatus(false);
+    }
+
+  }
   const handleRun = async () => {
     try {
       setButtonStatus(true);
@@ -160,7 +210,7 @@ export default function Home() {
       let config = {
         method: "post",
         maxBodyLength: Infinity,
-        url: `http://${IP}:3001/judge`,
+        url: `/api/submit`,
         headers: {
           "Content-Type": "application/json",
         },
@@ -353,7 +403,7 @@ export default function Home() {
                 sx={{ ml: "auto", alignSelf: "flex-end"}}
                 variant="contained"
                 color="secondary"
-                onClick={handleRun}
+                onClick={handleCheck}
               >
                 Run
               </Button>

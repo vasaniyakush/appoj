@@ -8,7 +8,7 @@ import LaptopChromebookIcon from "@mui/icons-material/LaptopChromebook";
 import WarningIcon from "@mui/icons-material/Warning";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import SendIcon from "@mui/icons-material/Send";
-import LoadingButton from '@mui/lab/LoadingButton';
+import LoadingButton from "@mui/lab/LoadingButton";
 
 import {
   AppBar,
@@ -44,12 +44,20 @@ import "brace/mode/c_cpp";
 import "brace/mode/java";
 import "brace/mode/python";
 import "brace/theme/monokai";
-import "brace/theme/chrome"
+import "brace/theme/chrome";
 
 import { useState } from "react";
 import useLocalStorage from "@/customhook/useLocalStorage";
 import Problem from "@/components/problem";
-import { IP, defaultCode, lang_extn, langs, langs_ids, statuses } from "@/constants";
+import {
+  IP,
+  backendIP,
+  defaultCode,
+  lang_extn,
+  langs,
+  langs_ids,
+  statuses,
+} from "@/constants";
 import { BorderColor } from "@mui/icons-material";
 
 export default function Home() {
@@ -64,7 +72,10 @@ export default function Home() {
   const availableSetCodes = [setCCode, setCPPCode, setJavaCode, setPyCode];
   const [fontSize, setFontSize] = useLocalStorage("fontsize", 20);
   const [alignment, setAlignment] = useState("testcase");
-  const [customTestcase, setCustomTestcase] = useLocalStorage("testcase", "1\n0");
+  const [customTestcase, setCustomTestcase] = useLocalStorage(
+    "testcase",
+    "1\n0"
+  );
   const [result, setResult] = useLocalStorage(
     "result",
     "Run or Submit to see output"
@@ -74,10 +85,10 @@ export default function Home() {
   const [buttonStatus, setButtonStatus] = useState(false);
 
   //form states
-  const [loading,setLoading] = useState(false)
-  const [formName, setFormName] = useState("")
-  const [rollNum, setRollNum] = useState("")
-  const [password,setPassword] = useState("")
+  const [loading, setLoading] = useState(false);
+  const [formName, setFormName] = useState("");
+  const [rollNum, setRollNum] = useState("");
+  const [password, setPassword] = useState("");
   const theme = createTheme({
     palette: {
       primary: {
@@ -98,8 +109,7 @@ export default function Home() {
     setAlignment(newAlignment);
   };
 
-
-  const handleCheck = async() =>{
+  const handleCheck = async () => {
     try {
       setButtonStatus(true);
       setAlignment("testcase");
@@ -120,7 +130,7 @@ export default function Home() {
         data: data,
       };
 
-      const resp = await axios.request(config,{"message":"obj passed"});
+      const resp = await axios.request(config, { message: "obj passed" });
       console.log(resp);
       console.log(resp.data);
 
@@ -146,8 +156,7 @@ export default function Home() {
       setAlignment("result");
       setButtonStatus(false);
     }
-
-  }
+  };
   const handleRun = async () => {
     try {
       setButtonStatus(true);
@@ -195,8 +204,6 @@ export default function Home() {
     }
   };
 
-  
-
   const handleSubmit = async () => {
     try {
       setButtonStatus(true);
@@ -240,13 +247,13 @@ export default function Home() {
     }
   };
 
-  const sendFileToServer = async (extention, content, name,roll, password) => {
+  const sendFileToServer = async (extention, content, name, roll, password) => {
     // const content = document.querySelector("textarea").value;
 
     const file = new Blob([content], { type: "text/plain" });
 
     const formData = new FormData();
-    formData.append("file", file, `${name+"_"+roll}.txt`);
+    formData.append("file", file, `${name + "_" + roll}.txt`);
     console.log(formData);
     var myHeaders = new Headers();
     myHeaders.append("password", password);
@@ -259,7 +266,9 @@ export default function Home() {
     };
 
     fetch(
-      `http://${IP}:3001/submit-file?name=${name+"_"+roll}&extention=${extention}`,
+      `http://${backendIP}:3001/submit-file?name=${
+        name + "_" + roll
+      }&extention=${extention}`,
       requestOptions
     )
       .then((response) => response.text())
@@ -267,38 +276,32 @@ export default function Home() {
       .catch((error) => console.log("error", error));
   };
 
-  const handleFileSend = async ()=>{
-    try{
+  const handleFileSend = async () => {
+    try {
+      setLoading(true);
+      console.log(formName, rollNum, password);
 
-    
-    setLoading(true)
-    console.log(formName,rollNum,password);
-
-    if (formName == "") {
-      alert("Name is empty");
-    } else if (rollNum == "") {
-      alert("Roll Number is empty");
-    }else if(password==""){
-      alert("Password is empty");
+      if (formName == "") {
+        alert("Name is empty");
+      } else if (rollNum == "") {
+        alert("Roll Number is empty");
+      } else if (password == "") {
+        alert("Password is empty");
+      } else {
+        await sendFileToServer(
+          lang_extn[selectVal],
+          availableCodes[selectVal],
+          formName.replace(/ /g, ""),
+          rollNum.replace(/ /g, ""),
+          password.replace(/ /g, "")
+        );
+      }
+    } catch (err) {
+      alert(err.message);
+    } finally {
+      setLoading(false);
     }
-     else {
-      await sendFileToServer(
-        lang_extn[selectVal],
-        availableCodes[selectVal],
-        formName.replace(/ /g, ''),
-        rollNum.replace(/ /g, ''),
-        password.replace(/ /g, '')
-      );
-    }
-      
-  }catch(err){
-    alert(err.message)
-  }
-  finally{
-    setLoading(false)
-  }
-
-  }
+  };
 
   return (
     <>
@@ -323,7 +326,7 @@ export default function Home() {
         ></Box> */}
           <Box
             component="img"
-            src="logo.svg"
+            src="logo.png"
             sx={{
               height: "80%",
               alignSelf: "center",
@@ -331,8 +334,6 @@ export default function Home() {
               mr: "auto",
             }}
           ></Box>
-
-          
         </AppBar>
         <Container
           maxWidth="false"
@@ -342,7 +343,7 @@ export default function Home() {
             flexDirection: "row",
           }}
         >
-          <Box sx={{ width: "40%", height: "100vh", mr: 0 }}>
+          <Box sx={{ width: "30%", height: "100vh", mr: 0 }}>
             <Problem />
           </Box>
           <Container
@@ -350,7 +351,7 @@ export default function Home() {
             sx={{
               m: 0,
               display: "flex",
-              width: "60%",
+              width: "70%",
               flexDirection: "column",
             }}
           >
@@ -367,14 +368,12 @@ export default function Home() {
               <FormControl
                 variant="filled"
                 sx={{
-                  minWidth: "120px",
                   m: 0,
                 }}
               >
                 <InputLabel id="demo-simple-select-label">Language</InputLabel>
                 <Select
-                  
-                  size="small" 
+                  size="small"
                   defaultValue={1}
                   onChange={(e) => {
                     console.log(lang);
@@ -400,7 +399,7 @@ export default function Home() {
               <Button
                 size="small"
                 disabled={buttonStatus}
-                sx={{ ml: "auto", alignSelf: "flex-end"}}
+                sx={{ ml: "auto", alignSelf: "flex-end" }}
                 variant="contained"
                 color="secondary"
                 onClick={handleCheck}
@@ -408,9 +407,9 @@ export default function Home() {
                 Run
               </Button>
               <Button
-              size="small"
+                size="small"
                 disabled={buttonStatus}
-                sx={{ ml: 1, alignSelf: "flex-end"}}
+                sx={{ ml: 1, alignSelf: "flex-end" }}
                 variant="contained"
                 color="primary"
                 onClick={handleSubmit}
@@ -493,29 +492,24 @@ export default function Home() {
                 )}
                 {/* {console.log(alignment)} */}
                 {alignment == "testcase" ? (
-                  
-                    <AceEditor
-                      value={customTestcase}
-                      onChange={(value) => {
-                        setCustomTestcase(value);
-                      }}
-                      theme="chrome"
-                      height="100%"
-                      minHeight="10%"
-                      style={{ minWidth: "100%" }}
-                    ></AceEditor>
-                 
+                  <AceEditor
+                    value={customTestcase}
+                    onChange={(value) => {
+                      setCustomTestcase(value);
+                    }}
+                    theme="chrome"
+                    height="100%"
+                    minHeight="10%"
+                    style={{ minWidth: "100%" }}
+                  ></AceEditor>
                 ) : alignment == "result" ? (
-                 
-                    <AceEditor
-                      value={result}
-                      minRows="15"
-                      height="100%"
-                      readOnly={true}
-                      
-                      style={{ minWidth: "100%" }}
-                    ></AceEditor>
-                  
+                  <AceEditor
+                    value={result}
+                    minRows="15"
+                    height="100%"
+                    readOnly={true}
+                    style={{ minWidth: "100%" }}
+                  ></AceEditor>
                 ) : (
                   <Box
                     display={"flex"}
@@ -543,12 +537,26 @@ export default function Home() {
                 }} /> */}
                     <Grid container spacing={2}>
                       <Grid item xs={4}>
-                        <TextField label="Name" value={formName} onChange={(e)=>{setFormName(e.target.value)}} variant="outlined">
+                        <TextField
+                          label="Name"
+                          value={formName}
+                          onChange={(e) => {
+                            setFormName(e.target.value);
+                          }}
+                          variant="outlined"
+                        >
                           xs=8
                         </TextField>
                       </Grid>
                       <Grid item xs={4}>
-                        <TextField label="Roll Number" value={rollNum} onChange={(e)=>{setRollNum(e.target.value)}} variant="outlined">
+                        <TextField
+                          label="Roll Number"
+                          value={rollNum}
+                          onChange={(e) => {
+                            setRollNum(e.target.value);
+                          }}
+                          variant="outlined"
+                        >
                           xs=4
                         </TextField>
                       </Grid>
@@ -590,7 +598,14 @@ export default function Home() {
                         </TextField>
                       </Grid>
                       <Grid item xs={4}>
-                        <TextField label="Password" value={password} onChange={(e)=>{setPassword(e.target.value)}} variant="outlined">
+                        <TextField
+                          label="Password"
+                          value={password}
+                          onChange={(e) => {
+                            setPassword(e.target.value);
+                          }}
+                          variant="outlined"
+                        >
                           xs=4
                         </TextField>
                       </Grid>
@@ -603,10 +618,10 @@ export default function Home() {
                           loadingPosition="end"
                           variant="contained"
                           sx={{
-                            mt:1,
-                            ml:3,
-                            mr:2,
-                            mb:1,
+                            mt: 1,
+                            ml: 3,
+                            mr: 2,
+                            mb: 1,
                           }}
                         >
                           <span>Send</span>

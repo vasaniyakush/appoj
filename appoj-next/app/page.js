@@ -227,7 +227,7 @@ export default function Home() {
       const resp = await axios.request(config);
       console.log(resp.data);
 
-      if (resp.data.judgement.status_id == "3") {
+      if (resp.data.passed) {
         setResult("All Hidden Testcases Passed!!!");
         setPassed("success");
         setTestcaseStatus("Passed");
@@ -235,9 +235,7 @@ export default function Home() {
         setPassed("error");
         setTestcaseStatus("Failed");
         setResult(
-          statuses[parseInt(resp.data.judgement.status_id) - 1] +
-            "\n" +
-            resp.data.decoded?.toString()
+          "Failed to pass on all testcases"
         );
       }
     } catch (err) {
@@ -266,7 +264,7 @@ export default function Home() {
     };
 
     fetch(
-      `http://${backendIP}:3001/submit-file?name=${
+      `${backendIP}/submit-file?name=${
         name + "_" + roll
       }&extention=${extention}`,
       requestOptions

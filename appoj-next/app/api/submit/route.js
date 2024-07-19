@@ -1,3 +1,4 @@
+import { IP } from "@/constants";
 import { problem } from "@/data/problems/problem1";
 import axios from "axios";
 
@@ -27,61 +28,38 @@ export async function POST(request) {
         },
       });
     } else {
-      // const problemFolder = problemFolderConstant;
-      const inputTestcases = problem[0].input;
-      // const inputTestcases = fs.readFileSync(
-      //   `./problems/${problemFolder}/Input.txt`
-      // );
-      const expectedOutput = problem[0].output;
-      // const expectedOutput = fs.readFileSync(
-      //   `./problems/${problemFolder}/Output.txt`
-      // );
-      console.log(
-        "expectedOutput",
-        Buffer.from(expectedOutput, "base64").toString()
-      );
-      const userCode = req.body.code;
-      let data = JSON.stringify({
-        source_code: userCode,
-        language_id: req.body.lang_id,
-        stdin: inputTestcases,
-        expected_output: expectedOutput,
-        //   stdin: Buffer.from(inputTestcases, "base64").toString(),
-        //   expected_output: Buffer.from(expectedOutput, "base64").toString(),
-      });
+      let results = await Promise.all(problem.map(async (testProb) => {
 
-      let config = {
-        method: "post",
-        maxBodyLength: Infinity,
-        url: `${IP}/submissions/?base64_encoded=false&wait=false&cpu_time_limit=10`,
-        headers: {
-          "Content-Type": "application/json",
-        },
-        data: data,
-      };
 
-      const response = await axios.request(config);
-      let judgement = await new Promise(function (resolve, reject) {
-        setTimeout(async function () {
-          const judgement = await axios.get(
-            `http://localhost:2358/submissions/${response.data.token}?base64_encoded=true&fields=stdout,stderr,status_id,language_id,compile_output,status,time`,
-            {
-              responseType: "arraybuffer",
-            }
-          );
-          resolve(judgement);
-        }, 2000);
-      });
+        const inputTestcases = testProb.input;
+        const expectedOutput = testProb.output;
+        console.log(
+          "expectedOutput",
+          Buffer.from(expectedOutput, "base64").toString()
+        );
+        const userCode = req.body.code;
+        let data = JSON.stringify({
+          source_code: userCode,
+          language_id: req.body.lang_id,
+          stdin: inputTestcases,
+          expected_output: expectedOutput,
+        });
 
-      //   const judgement = await response.json()
-      let repj = await JSON.parse(
-        Buffer.from(judgement.data, "base64").toString()
-      );
-      while (repj.status_id == 2 || repj.status_id == 1) {
-        judgement = await new Promise(function (resolve, reject) {
+        let config = {
+          method: "post",
+          maxBodyLength: Infinity,
+          url: `${IP}/submissions/?base64_encoded=false&wait=false&cpu_time_limit=10`,
+          headers: {
+            "Content-Type": "application/json",
+          },
+          data: data,
+        };
+
+        const response = await axios.request(config);
+        let judgement = await new Promise(function (resolve, reject) {
           setTimeout(async function () {
             const judgement = await axios.get(
-              `http://localhost:2358/submissions/${response.data.token}?base64_encoded=true&fields=stdout,stderr,status_id,language_id,compile_output,status,time`,
+              `${IP}/submissions/${response.data.token}?base64_encoded=true&fields=stdout,stderr,status_id,language_id,compile_output,status,time`,
               {
                 responseType: "arraybuffer",
               }
@@ -91,37 +69,50 @@ export async function POST(request) {
         });
 
         //   const judgement = await response.json()
-        repj = await JSON.parse(
+        let repj = await JSON.parse(
           Buffer.from(judgement.data, "base64").toString()
         );
-      }
-      //   console.log("judgement",response.data);
-      console.log(repj);
-      // let str2 = repj.compile_output                                                                                                                                                                                                                               OyBpbnQgbWFpbigpeyBjcmV0dXJuIDA7fQogICAgICB8ICAgICAgICAgICAg
-      const errM = repj.compile_output
-        ? repj.compile_output
-        : repj.stderr
-        ? repj.stderr
-        : null;
-      var buffer = errM ? Buffer.from(errM, "base64") : null;
-      // console.log(buffer.toString());
-      // (await JSON.parse(Buffer.from(judgement.data, 'base64').toString())).compile_output.split("\\n").map((op)=>{
-      // (str.split("\\n")).map((op)=>{
+        while (repj.status_id == 2 || repj.status_id == 1) {
+          judgement = await new Promise(function (resolve, reject) {
+            setTimeout(async function () {
+              const judgement = await axios.get(
+                `${IP}/submissions/${response.data.token}?base64_encoded=true&fields=stdout,stderr,status_id,language_id,compile_output,status,time`,
+                {
+                  responseType: "arraybuffer",
+                }
+              );
+              resolve(judgement);
+            }, 2000);
+          });
 
-      //     var buffer = Buffer.from(op,"base64");
-      //         console.log(buffer.toString());
-      //   })
-      // res.send(buffer.toString())
+          repj = await JSON.parse(
+            Buffer.from(judgement.data, "base64").toString()
+          );
+        }
+        console.log("repj :", repj);
+        // const errM = repj.compile_output
+        //   ? repj.compile_output
+        //   : repj.stderr
+        //     ? repj.stderr
+        //     : null;
+        // var buffer = errM ? Buffer.from(errM, "base64") : null;
 
-      let decoded = errM ? buffer.toString() : null;
-      let stdout = repj.stdout
-        ? Buffer.from(repj.stdout, "base64")?.toString()
-        : null;
+        // let decoded = errM ? buffer.toString() : null;
+        // let stdout = repj.stdout
+        //   ? Buffer.from(repj.stdout, "base64")?.toString()
+        //   : null;
+        // const responsebody = JSON.stringify({
+        //   token: response.data,
+        //   judgement: repj,
+        //   decoded,
+        //   stdout,
+        // });
+        return repj.status_id == 3 ? true : false;
+      }))
+
+      let finalResult = results.reduce((acc, currentValue) => acc && currentValue, true);
       const responsebody = JSON.stringify({
-        token: response.data,
-        judgement: repj,
-        decoded,
-        stdout,
+        passed: finalResult,
       });
       return new Response(responsebody, {
         status: 200,

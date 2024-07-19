@@ -1,5 +1,5 @@
-export const IP = "https://7q0xhxzq-2358.inc1.devtunnels.ms";
-export const backendIP = "https://localhost:3001";
+export const IP = "http://localhost:2358";
+export const backendIP = "http://localhost:3001";
 
 //Please add respective items to add a new lang
 export const langs = ["c_cpp", "c_cpp", "java", "python"];

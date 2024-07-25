@@ -29,8 +29,6 @@ export async function POST(request) {
       });
     } else {
       let results = await Promise.all(problem.map(async (testProb) => {
-
-
         const inputTestcases = testProb.input;
         const expectedOutput = testProb.output;
         console.log(

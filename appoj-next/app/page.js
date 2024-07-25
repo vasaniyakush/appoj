@@ -145,8 +145,8 @@ export default function Home() {
         );
         setResult(
           statuses[parseInt(resp.data.judgement.status_id) - 1] +
-            "\n" +
-            resp.data.decoded?.toString()
+          "\n" +
+          resp.data.decoded?.toString()
         );
       }
     } catch (err) {
@@ -192,8 +192,8 @@ export default function Home() {
         );
         setResult(
           statuses[parseInt(resp.data.judgement.status_id) - 1] +
-            "\n" +
-            resp.data.decoded?.toString()
+          "\n" +
+          resp.data.decoded?.toString()
         );
       }
     } catch (err) {
@@ -248,30 +248,29 @@ export default function Home() {
   const sendFileToServer = async (extention, content, name, roll, password) => {
     // const content = document.querySelector("textarea").value;
 
-    const file = new Blob([content], { type: "text/plain" });
+    // const file = new Blob([content], { type: "text/plain" });
+    const file = btoa(content)
 
-    const formData = new FormData();
-    formData.append("file", file, `${name + "_" + roll}.txt`);
-    console.log(formData);
-    var myHeaders = new Headers();
-    myHeaders.append("password", password);
+    let data = JSON.stringify({
+      "code": file,
+    });
 
-    var requestOptions = {
-      method: "POST",
-      headers: myHeaders,
-      body: formData,
-      redirect: "follow",
+    let config = {
+      method: "post",
+      maxBodyLength: Infinity,
+      url: `/api/file?name=${name + "_" + roll
+        }&extention=${extention}`,
+      headers: {
+        "Content-Type": "application/json",
+        "password": password
+      },
+      data: data,
     };
 
-    fetch(
-      `${backendIP}/submit-file?name=${
-        name + "_" + roll
-      }&extention=${extention}`,
-      requestOptions
-    )
-      .then((response) => response.text())
-      .then((result) => alert(result))
-      .catch((error) => console.log("error", error));
+    const resp = await axios.request(config);
+    console.log(resp);
+
+
   };
 
   const handleFileSend = async () => {
@@ -386,7 +385,7 @@ export default function Home() {
                   }}
                   // value={age}
                   label="Language"
-                  // onChange={handleChange}
+                // onChange={handleChange}
                 >
                   <MenuItem value={0}>C</MenuItem>
                   <MenuItem value={1}>CPP</MenuItem>

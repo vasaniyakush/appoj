@@ -5,7 +5,7 @@ export default function Problem() {
         id="problem-statement"
         className="_problemBody_15v7d_29 _dark_15v7d_229 print"
       >
-        <h2>Problem</h2>
+        <h2>Problem changes</h2>
         <p>
           Tenzing received <strong>3n</strong> books from his fans. The books
           are arranged in <strong>3</strong> stacks with <strong>n</strong>{" "}

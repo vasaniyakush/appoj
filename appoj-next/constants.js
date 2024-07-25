@@ -1,5 +1,4 @@
 export const IP = "http://localhost:2358";
-export const backendIP = "http://localhost:3001";
 
 
 export const savePassword = "THISPASS"

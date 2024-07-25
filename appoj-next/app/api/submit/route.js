@@ -3,137 +3,118 @@ import { problem } from "@/data/problems/problem1";
 import axios from "axios";
 
 export async function POST(request) {
-  try {
-    const req = {};
+    try {
+        const req = {};
 
-    req.body = await request.json();
-    if (!req.body.code || req.body.code == "") {
-      const responseBody = JSON.stringify({ message: "No Code Found" });
+        req.body = await request.json();
+        if (!req.body.code || req.body.code === "") {
+            const responseBody = JSON.stringify({ message: "No Code Found" });
 
-      return new Response(responseBody, {
-        status: 400,
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
-    } else if (!req.body.lang_id || req.body.lang_id == "") {
-      // return new Response.status(400).json({ message: "Please send a language id" });
-      const responseBody = JSON.stringify({
-        message: "Please send a language id",
-      });
-      return new Response(responseBody, {
-        status: 400,
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
-    } else {
-      let results = await Promise.all(problem.map(async (testProb) => {
-        const inputTestcases = testProb.input;
-        const expectedOutput = testProb.output;
-        console.log(
-          "expectedOutput",
-          Buffer.from(expectedOutput, "base64").toString()
-        );
-        const userCode = req.body.code;
-        let data = JSON.stringify({
-          source_code: userCode,
-          language_id: req.body.lang_id,
-          stdin: inputTestcases,
-          expected_output: expectedOutput,
-        });
+            return new Response(responseBody, {
+                status: 400,
+                headers: {
+                    "Content-Type": "application/json",
+                },
+            });
+        } else if (!req.body.lang_id || req.body.lang_id === "") {
+            const responseBody = JSON.stringify({
+                message: "Please send a language id",
+            });
+            return new Response(responseBody, {
+                status: 400,
+                headers: {
+                    "Content-Type": "application/json",
+                },
+            });
+        } else {
+            let allPassed = true;
 
-        let config = {
-          method: "post",
-          maxBodyLength: Infinity,
-          url: `${IP}/submissions/?base64_encoded=false&wait=false&cpu_time_limit=10`,
-          headers: {
-            "Content-Type": "application/json",
-          },
-          data: data,
-        };
+            for (let testProb of problem) {
+                const inputTestcases = testProb.input;
+                const expectedOutput = testProb.output;
+                const userCode = req.body.code;
 
-        const response = await axios.request(config);
-        let judgement = await new Promise(function (resolve, reject) {
-          setTimeout(async function () {
-            const judgement = await axios.get(
-              `${IP}/submissions/${response.data.token}?base64_encoded=true&fields=stdout,stderr,status_id,language_id,compile_output,status,time`,
-              {
-                responseType: "arraybuffer",
-              }
-            );
-            resolve(judgement);
-          }, 2000);
-        });
+                let data = JSON.stringify({
+                    source_code: userCode,
+                    language_id: req.body.lang_id,
+                    stdin: inputTestcases,
+                    expected_output: expectedOutput,
+                });
 
-        //   const judgement = await response.json()
-        let repj = await JSON.parse(
-          Buffer.from(judgement.data, "base64").toString()
-        );
-        while (repj.status_id == 2 || repj.status_id == 1) {
-          judgement = await new Promise(function (resolve, reject) {
-            setTimeout(async function () {
-              const judgement = await axios.get(
-                `${IP}/submissions/${response.data.token}?base64_encoded=true&fields=stdout,stderr,status_id,language_id,compile_output,status,time`,
-                {
-                  responseType: "arraybuffer",
+                let config = {
+                    method: "post",
+                    maxBodyLength: Infinity,
+                    url: `${IP}/submissions/?base64_encoded=false&wait=false&cpu_time_limit=10`,
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    data: data,
+                };
+
+                const response = await axios.request(config);
+                let judgement = await new Promise(function(resolve, reject) {
+                    setTimeout(async function() {
+                        const judgement = await axios.get(
+                            `${IP}/submissions/${response.data.token}?base64_encoded=true&fields=stdout,stderr,status_id,language_id,compile_output,status,time`,
+                            {
+                                responseType: "arraybuffer",
+                            }
+                        );
+                        resolve(judgement);
+                    }, 2000);
+                });
+
+                let repj = await JSON.parse(
+                    Buffer.from(judgement.data, "base64").toString()
+                );
+                while (repj.status_id === 2 || repj.status_id === 1) {
+                    judgement = await new Promise(function(resolve, reject) {
+                        setTimeout(async function() {
+                            const judgement = await axios.get(
+                                `${IP}/submissions/${response.data.token}?base64_encoded=true&fields=stdout,stderr,status_id,language_id,compile_output,status,time`,
+                                {
+                                    responseType: "arraybuffer",
+                                }
+                            );
+                            resolve(judgement);
+                        }, 2000);
+                    });
+
+                    repj = await JSON.parse(
+                        Buffer.from(judgement.data, "base64").toString()
+                    );
                 }
-              );
-              resolve(judgement);
-            }, 2000);
-          });
+                if (repj.status_id !== 3) {
+                    console.log(`Failed on Input: ${inputTestcases}, Output: ${expectedOutput}`)
+                    console.log('Program Output', atob(repj.stdout))
+                    allPassed = false;
+                    break;
+                }
+            }
 
-          repj = await JSON.parse(
-            Buffer.from(judgement.data, "base64").toString()
-          );
+            const responsebody = JSON.stringify({
+                passed: allPassed,
+            });
+            return new Response(responsebody, {
+                status: 200,
+                headers: {
+                    "Content-Type": "application/json",
+                },
+            });
         }
-        console.log("repj :", repj);
-        // const errM = repj.compile_output
-        //   ? repj.compile_output
-        //   : repj.stderr
-        //     ? repj.stderr
-        //     : null;
-        // var buffer = errM ? Buffer.from(errM, "base64") : null;
-
-        // let decoded = errM ? buffer.toString() : null;
-        // let stdout = repj.stdout
-        //   ? Buffer.from(repj.stdout, "base64")?.toString()
-        //   : null;
-        // const responsebody = JSON.stringify({
-        //   token: response.data,
-        //   judgement: repj,
-        //   decoded,
-        //   stdout,
-        // });
-        return repj.status_id == 3 ? true : false;
-      }))
-
-      let finalResult = results.reduce((acc, currentValue) => acc && currentValue, true);
-      const responsebody = JSON.stringify({
-        passed: finalResult,
-      });
-      return new Response(responsebody, {
-        status: 200,
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
+    } catch (err) {
+        console.log("INSIDE ERROR");
+        console.log(err);
+        return new Response(
+            JSON.stringify({
+                err: err,
+            }),
+            {
+                status: 400,
+                headers: {
+                    "Content-Type": "application/json",
+                },
+            }
+        );
     }
-  } catch (err) {
-    console.log("INSIDE ERROR");
-    console.log(err);
-    return new Response(
-      JSON.stringify({
-        err: err,
-      }),
-      {
-        status: 400,
-        headers: {
-          "Content-Type": "application/json",
-        },
-      }
-    );
-    // console.log(err);
-    // res.status(400).json({ message: err });
-  }
 }

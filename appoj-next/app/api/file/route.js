@@ -1,8 +1,6 @@
 import { savePassword } from "@/constants";
 import { saveFile } from "@/multerConfig";
-import axios from "axios";
-import fs from "fs"
-import path from "path";
+
 // import { NextRequest } from "next/server";
 export async function POST(request) {
     let req= {}
@@ -21,10 +19,11 @@ export async function POST(request) {
 
     }
     else{
+      // new Response
         return new Response(
-            JSON.stringify({
+            {
               message: "Invalid Password",
-            }),
+            },
             {
               status: 403,
               headers: {
@@ -37,8 +36,18 @@ export async function POST(request) {
 
 
     return new Response(
+      JSON.stringify({
+        message: "File Saved",
+      }),
+      {
+        status: 200,
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );  
         
-    )
+    
   } catch (err) {
     console.log(err);
     return new Response(

@@ -269,11 +269,12 @@ export default function Home() {
 
     const resp = await axios.request(config);
     console.log(resp);
-
+    // alert(resp.data.message);
 
   };
 
-  const handleFileSend = async () => {
+  const handleFileSend = async (e) => {
+    e.preventDefault();
     try {
       setLoading(true);
       console.log(formName, rollNum, password);
@@ -292,12 +293,20 @@ export default function Home() {
           rollNum.replace(/ /g, ""),
           password.replace(/ /g, "")
         );
+        alert("File Sent Successfully");
+        setFormName("");
+        setRollNum("");
+        setPassword("");
       }
-    } catch (err) {
-      alert(err.message);
-    } finally {
       setLoading(false);
+      
+    } catch (err) {
+      console.log(err);
+      alert(err.message);
+      setLoading(false);
+    } finally {
     }
+
   };
 
   return (

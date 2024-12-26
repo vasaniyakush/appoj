@@ -5,11 +5,10 @@ import axios from "axios";
 export async function POST(request) {
     try {
         const req = {};
-
         req.body = await request.json();
+
         if (!req.body.code || req.body.code === "") {
             const responseBody = JSON.stringify({ message: "No Code Found" });
-
             return new Response(responseBody, {
                 status: 400,
                 headers: {
@@ -28,6 +27,7 @@ export async function POST(request) {
             });
         } else {
             let allPassed = true;
+            let passedCount = 0;
 
             for (let testProb of problem) {
                 const inputTestcases = testProb.input;
@@ -52,6 +52,7 @@ export async function POST(request) {
                 };
 
                 const response = await axios.request(config);
+
                 let judgement = await new Promise(function(resolve, reject) {
                     setTimeout(async function() {
                         const judgement = await axios.get(
@@ -67,6 +68,7 @@ export async function POST(request) {
                 let repj = await JSON.parse(
                     Buffer.from(judgement.data, "base64").toString()
                 );
+
                 while (repj.status_id === 2 || repj.status_id === 1) {
                     judgement = await new Promise(function(resolve, reject) {
                         setTimeout(async function() {
@@ -84,18 +86,22 @@ export async function POST(request) {
                         Buffer.from(judgement.data, "base64").toString()
                     );
                 }
-                if (repj.status_id !== 3) {
-                    console.log(`Failed on Input: ${inputTestcases}, Output: ${expectedOutput}`)
-                    console.log('Program Output', atob(repj.stdout))
+
+                if (repj.status_id === 3) {
+                    passedCount++;
+                } else {
                     allPassed = false;
-                    break;
                 }
             }
-
-            const responsebody = JSON.stringify({
+            console.log("Passed Count", passedCount)
+            console.log("Total Count", problem.length)
+            const responseBody = JSON.stringify({
                 passed: allPassed,
+                passedCount: passedCount,
+                totalTestCases: problem.length,
             });
-            return new Response(responsebody, {
+
+            return new Response(responseBody, {
                 status: 200,
                 headers: {
                     "Content-Type": "application/json",
@@ -118,3 +124,6 @@ export async function POST(request) {
         );
     }
 }
+
+
+

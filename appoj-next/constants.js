@@ -1,7 +1,6 @@
 export const IP = "http://localhost:2358";
 
-
-export const savePassword = "THISPASS"
+export const savePassword = "THISPASS";
 //Please add respective items to add a new lang
 export const langs = ["c_cpp", "c_cpp", "java", "python"];
 export const langs_ids = [49, 54, 62, 71];

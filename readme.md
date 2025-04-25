@@ -11,6 +11,7 @@
    1. `docker pull -d redis db`
    2. `docker pull -d`
 7. Start Judge containers `docker-compose up -d --scale workers=2`
+   - If the container already exists, delete them using `docker-compose down`
 8. Navigate to appoj-next `cd appoj-next`
 9. Install node dependencies `npm i`
 10. Run the frontend application `npm run dev`
